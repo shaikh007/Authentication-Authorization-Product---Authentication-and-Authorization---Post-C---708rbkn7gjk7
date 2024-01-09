@@ -10,17 +10,15 @@ app.use(bodyParser.json());
 // Mock user data (Replace with actual user authentication logic)
 const users = [
     // Define user objects here
-    { userId: 1, userName: "user1", password: "pass1" },
-    { userId: 2, userName: "user2", password: "pass2" },
-    { userId: 3, userName: "user3", password: "pass3" },
+    { id: 1, username: 'user1', password: 'password1' },
+    { id: 2, username: 'user2', password: 'password2' },
 ];
 
 // Mock product data (Replace with actual product retrieval logic)
 const products = [
     // Define product objects here
-    { productId: 1, name: 'Product A', price: 10 },
-    { productId: 2, name: 'Product B', price: 20 },
-    { productId: 3, name: 'Product C', price: 30 },
+    { id: 1, name: 'Product A', price: 10 },
+    { id: 2, name: 'Product B', price: 20 },
 ];
 
 // Authentication endpoint (Students should implement this)
@@ -30,12 +28,12 @@ app.post('/login', (req, res) => {
     // Example token generation:
     const { userName, password } = req.body;
 
-    const user = users.find((user) => user.userName === userName && user.password === password)
+    const user = users.find((user) => user.username === userName && user.password === password)
     if (user) {
-        const token = jwt.sign({ userId: user.id, username: user.userName }, secretKey);
+        const token = jwt.sign({ userId: user.id, username: user.username }, secretKey);
         res.status(201).json({ token });
     } else {
-        res.status(201).json({ message: 'Authentication failed' });
+        res.status(401).json({ message: 'Authentication failed' });
     }
 
 });
@@ -45,16 +43,22 @@ const verifyToken = (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
-        return res.status(201).json({ message: 'Missing token' });
+        console.log('Missing token');
+        return res.status(401).json({ message: 'Missing token' });
     }
+
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
+            console.log('Invalid token:', err.message);
             return res.status(401).json({ message: 'Invalid token' });
         }
+
+        console.log('Token verified successfully:', decoded);
         req.user = decoded;
         next();
     });
 };
+
 
 // Product route (Students should implement this)
 app.get('/product', verifyToken, (req, res) => {
