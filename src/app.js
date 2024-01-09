@@ -32,7 +32,7 @@ app.post('/login', (req, res) => {
 
     const user = users.find((user) => user.userName === userName && user.password === password)
     if (!user) {
-        return res.status(201).json({ message: "Authentication failed" });
+        return res.status(201).json({ message: "Authentication failed", token });
     }
     const token = jwt.sign({ userId: user.id, username: user.userName }, secretKey);
     res.status(201).json({ token });
@@ -44,14 +44,14 @@ app.get('/product', (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
 
     if (!token) {
-        return res.status(200).json({ message: "Authorization required" });
+        return res.status(200).json({ message: "Product data" });
     }
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
             return res.status(401).json({ message: "Invalid token" });
         }
-        return res.status(200).json({ message: "Authorization required", products: decoded });
+        return res.status(200).json({ message: "Product data", products: decoded });
     });
 
     // Middleware to check for a valid JWT token
