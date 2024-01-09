@@ -26,9 +26,9 @@ app.post('/login', (req, res) => {
     // Implement user authentication logic here
     // If authentication is successful, generate a JWT token and send it in the response
     // Example token generation:
-    const { userName, password } = req.body;
+    const { username, password } = req.body;
 
-    const user = users.find((user) => user.username === userName && user.password === password)
+    const user = users.find((user) => user.username === username && user.password === password)
     if (user) {
         const token = jwt.sign({ userId: user.id, username: user.username }, secretKey);
         res.status(201).json({ token });
@@ -37,32 +37,22 @@ app.post('/login', (req, res) => {
     }
 
 });
-//Middleware for jwt token
 
-const verifyToken = (req, res, next) => {
-    const token = req.headers.authorization;
+
+// Product route (Students should implement this)
+app.get('/product', (req, res) => {
+    const token = req.headers.authorization.split(" ")[1];
 
     if (!token) {
-        console.log('Missing token');
-        return res.status(401).json({ message: 'Missing token' });
+        return res.status(401).json({ message: "Authorization required" });
     }
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
-            console.log('Invalid token:', err.message);
-            return res.status(401).json({ message: 'Invalid token' });
+            return res.status(401).json({ message: "Invalid token", error: err.message });
         }
-
-        console.log('Token verified successfully:', decoded);
-        req.user = decoded;
-        next();
+        res.status(200).json({ message: "Product data", products });
     });
-};
-
-
-// Product route (Students should implement this)
-app.get('/product', verifyToken, (req, res) => {
-    res.status(200).json({ message: 'Product data', products });
 });
 
 module.exports = app;
