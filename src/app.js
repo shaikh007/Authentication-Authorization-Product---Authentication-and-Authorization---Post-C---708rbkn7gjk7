@@ -31,34 +31,34 @@ app.post('/login', (req, res) => {
     const { userName, password } = req.body;
 
     const user = users.find((user) => user.userName === userName && user.password === password)
-    if (!user) {
-        return res.status(201).json({ message: "Authentication failed", token });
+    if (user) {
+        const token = jwt.sign({ userId: user.id, username: user.userName }, secretKey);
+        res.status(201).json({ token });
+    } else {
+        res.status(401).json({ message: 'Authentication failed' });
     }
-    const token = jwt.sign({ userId: user.id, username: user.userName }, secretKey);
-    res.status(201).json({ token });
+
 });
+//Middleware for jwt token
 
-// Product route (Students should implement this)
-app.get('/product', (req, res) => {
-
-    const token = req.headers.authorization.split(" ")[1];
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization;
 
     if (!token) {
-        return res.status(200).json({ message: "Product data" });
+        return res.status(401).json({ message: 'Missing token' });
     }
-
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
-            return res.status(401).json({ message: "Invalid token" });
+            return res.status(401).json({ message: 'Invalid token' });
         }
-        return res.status(200).json({ message: "Product data", products: decoded });
+        req.user = decoded;
+        next();
     });
+};
 
-    // Middleware to check for a valid JWT token
-    // Implement JWT token verification logic here
-    // If the token is valid, students can access product data and send it in the response
-    // Example response:
-    // res.status(200).json({ message: 'Product data', products: productData });
+// Product route (Students should implement this)
+app.get('/product', verifyToken, (req, res) => {
+    res.status(200).json({ message: 'Product data', products });
 });
 
 module.exports = app;
