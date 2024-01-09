@@ -35,7 +35,7 @@ app.post('/login', (req, res) => {
         const token = jwt.sign({ userId: user.id, username: user.userName }, secretKey);
         res.status(201).json({ token });
     } else {
-        res.status(401).json({ message: 'Authentication failed' });
+        res.status(201).json({ message: 'Authentication failed' });
     }
 
 });
@@ -45,7 +45,7 @@ const verifyToken = (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
-        return res.status(401).json({ message: 'Missing token' });
+        return res.status(201).json({ message: 'Missing token' });
     }
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
