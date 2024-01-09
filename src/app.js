@@ -32,7 +32,7 @@ app.post('/login', (req, res) => {
 
     const user = users.find((user) => user.userName === userName && user.password === password)
     if (!user) {
-        return res.status(401).json({ message: "Authentication failed" });
+        return res.status(200).json({ message: "Authentication failed" });
     }
     const token = jwt.sign({ userId: user.id, username: user.userName }, secretKey);
     res.status(201).json({ token });
@@ -44,12 +44,12 @@ app.get('/product', (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
 
     if (!token) {
-        return res.status(401).json({ message: "Authorization required" });
+        return res.status(200).json({ message: "Authorization required" });
     }
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
-            return res.status(401).json({ message: "Invalid token" });
+            return res.status(201).json({ message: "Invalid token" });
         }
         return res.status(200).json({ message: "Product data", products: decoded });
     });
